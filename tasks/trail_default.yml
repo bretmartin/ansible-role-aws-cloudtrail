@@ -1,0 +1,60 @@
+---
+
+- name: describe Default trail in {{ trail_region }}
+  command: |
+    aws cloudtrail describe-trails
+                   --trail-name-list
+                     'arn:aws:cloudtrail:{{
+                        trail_region }}:{{ account }}:trail/Default'
+                   --region '{{ trail_region }}'
+                   --query 'trailList[0]'
+                   --profile '{{ profile }}'
+  register: trails
+  changed_when: False
+
+- name: set default region boolean fact
+  set_fact:
+    default_region: '{{ (trail_region == region) | bool }}'
+
+
+- block:
+
+  - name: set Default trail fact for {{ trail_region }}
+    set_fact:
+      default_trail: '{{ trails.stdout | from_json }}'
+
+  - debug: var=default_trail
+
+  - name: update Default trail in {{ trail_region }}
+    command: |
+      aws cloudtrail update-trail
+                     --name Default
+                     --s3-bucket-name '{{ awslogs_bucket }}'
+                     '{{ default_region
+                         | ternary("--include-global-service-events",
+                                   "--no-include-global-service-events") }}'
+                     --enable-log-file-validation
+                     --region '{{ trail_region }}'
+                     --profile '{{ profile }}'
+    when: default_trail.IncludeGlobalServiceEvents != default_region or
+          default_trail.LogFileValidationEnabled   != True or
+          default_trail.S3BucketName               != '{{ awslogs_bucket }}'
+
+  when: trails.stdout != 'null'
+
+
+- block:
+
+  - name: create Default trail in {{ trail_region }}
+    command: |
+      aws cloudtrail create-trail
+                     --name Default
+                     --s3-bucket-name '{{ awslogs_bucket }}'
+                     '{{ default_region
+                         | ternary("--include-global-service-events",
+                                   "--no-include-global-service-events") }}'
+                     --enable-log-file-validation
+                     --region '{{ trail_region }}'
+                     --profile '{{ profile }}'
+
+  when: trails.stdout == 'null'
