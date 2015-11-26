@@ -56,3 +56,22 @@
                      --profile '{{ profile }}'
 
   when: trails.stdout == 'null'
+
+
+- name: get Default trail status in {{ trail_region }}
+  command: |
+    aws cloudtrail get-trail-status
+                   --name Default
+                   --region '{{ trail_region }}'
+                   --query 'IsLogging'
+                   --profile '{{ profile }}'
+  register: is_logging
+  changed_when: False
+
+- name: enable logging on Default trail in {{ trail_region }}
+  command: |
+    aws cloudtrail start-logging
+                   --name Default
+                   --region '{{ trail_region }}'
+                   --profile '{{ profile }}'
+  when: '{{ not is_logging.stdout | bool }}'
