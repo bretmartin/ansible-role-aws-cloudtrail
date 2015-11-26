@@ -23,8 +23,6 @@
     set_fact:
       default_trail: '{{ trails.stdout | from_json }}'
 
-  - debug: var=default_trail
-
   - name: update Default trail in {{ trail_region }}
     command: |
       aws cloudtrail update-trail
