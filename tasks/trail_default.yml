@@ -1,7 +1,7 @@
 ---
 
 - name: describe Default trail in {{ trail_region }}
-  command: |
+  command: >
     aws cloudtrail describe-trails
                    --trail-name-list
                      'arn:aws:cloudtrail:{{
@@ -24,7 +24,7 @@
       default_trail: '{{ trails.stdout | from_json }}'
 
   - name: update Default trail in {{ trail_region }}
-    command: |
+    command: >
       aws cloudtrail update-trail
                      --name Default
                      --s3-bucket-name '{{ awslogs_bucket }}'
@@ -44,7 +44,7 @@
 - block:
 
   - name: create Default trail in {{ trail_region }}
-    command: |
+    command: >
       aws cloudtrail create-trail
                      --name Default
                      --s3-bucket-name '{{ awslogs_bucket }}'
@@ -59,7 +59,7 @@
 
 
 - name: get Default trail status in {{ trail_region }}
-  command: |
+  command: >
     aws cloudtrail get-trail-status
                    --name Default
                    --region '{{ trail_region }}'
@@ -69,7 +69,7 @@
   changed_when: False
 
 - name: enable logging on Default trail in {{ trail_region }}
-  command: |
+  command: >
     aws cloudtrail start-logging
                    --name Default
                    --region '{{ trail_region }}'
