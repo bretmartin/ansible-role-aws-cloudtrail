@@ -2,8 +2,7 @@
 
 - name: set global facts
   set_fact:
-    cloudtrail_url: >
-      https://console.aws.amazon.com/cloudtrail/home
+    cloudtrail_url: https://console.aws.amazon.com/cloudtrail/home
 
 - include: roles/aws/tasks/regions.yml
 
