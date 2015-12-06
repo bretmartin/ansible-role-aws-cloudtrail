@@ -1,13 +1,29 @@
 ---
 
-- name: list AWS regions
+- name: list all AWS regions
   command: >
     aws ec2 describe-regions
             --query 'Regions[*].RegionName'
             --profile '{{ profile }}'
-  register: regions
+  register: all_regions
   changed_when: False
 
-- name: set AWS regions fact
+- name: set all AWS regions fact
   set_fact:
-    regions: '{{ regions.stdout | from_json }}'
+    all_regions: '{{ all_regions.stdout | from_json }}'
+
+- name: set configured AWS regions fact
+  set_fact:
+    configured_regions: >
+      {% if cloudtrail_regions == 'ALL' -%}
+      {{ all_regions }}
+      {% elif cloudtrail_regions == 'NONE' -%}
+      {{ [] }}
+      {% else -%}
+      {{ cloudtrail_regions }}
+      {% endif -%}
+
+- name: set added and removed AWS regions fact
+  set_fact:
+    active_regions: '{{ configured_regions }}'
+    inactive_regions: '{{ all_regions | difference(configured_regions) }}'

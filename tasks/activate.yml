@@ -1,5 +1,9 @@
 ---
 
+- name: set default region boolean fact
+  set_fact:
+    default_region: '{{ (trail_region == region) | bool }}'
+
 - name: describe Default trail in {{ trail_region }}
   command: >
     aws cloudtrail describe-trails
@@ -11,10 +15,6 @@
                    --profile '{{ profile }}'
   register: trails
   changed_when: False
-
-- name: set default region boolean fact
-  set_fact:
-    default_region: '{{ (trail_region == region) | bool }}'
 
 
 - block:

@@ -4,8 +4,6 @@
   set_fact:
     cloudtrail_url: https://console.aws.amazon.com/cloudtrail/home
 
-- include: regions.yml
-
 - name: call optional notifier
   include: 'roles/{{ notifier_role }}/tasks/main.yml'
   vars:
@@ -14,10 +12,17 @@
       on <a href="{{ cloudtrail_url }}">account {{ profile }}</a>
   when: notifier_role is defined
 
-- include: trail_default.yml
+- include: regions.yml
+
+- include: activate.yml
   vars:
     trail_region: '{{ item }}'
-  with_items: regions
+  with_items: active_regions
+
+- include: deactivate.yml
+  vars:
+    trail_region: '{{ item }}'
+  with_items: inactive_regions
 
 - name: call optional notifier
   include: 'roles/{{ notifier_role }}/tasks/main.yml'
