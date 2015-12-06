@@ -2,5 +2,7 @@
 
 - include: roles/aws/tasks/regions.yml
 
-- include: trail_default.yml trail_region='{{ item }}'
+- include: trail_default.yml
+  vars:
+    trail_region: '{{ item }}'
   with_items: regions
