@@ -1,0 +1,13 @@
+---
+
+- name: list AWS regions
+  command: >
+    aws ec2 describe-regions
+            --query 'Regions[*].RegionName'
+            --profile '{{ profile }}'
+  register: regions
+  changed_when: False
+
+- name: set AWS regions fact
+  set_fact:
+    regions: '{{ regions.stdout | from_json }}'

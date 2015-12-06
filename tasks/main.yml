@@ -4,7 +4,7 @@
   set_fact:
     cloudtrail_url: https://console.aws.amazon.com/cloudtrail/home
 
-- include: roles/aws/tasks/regions.yml
+- include: regions.yml
 
 - name: call optional notifier
   include: 'roles/{{ notifier_role }}/tasks/main.yml'
