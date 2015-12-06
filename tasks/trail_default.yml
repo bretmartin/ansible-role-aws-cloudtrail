@@ -23,20 +23,33 @@
     set_fact:
       default_trail: '{{ trails.stdout | from_json }}'
 
-  - name: update Default trail in {{ trail_region }}
-    command: >
-      aws cloudtrail update-trail
-                     --name Default
-                     --s3-bucket-name '{{ awslogs_bucket }}'
-                     '{{ default_region
-                         | ternary("--include-global-service-events",
-                                   "--no-include-global-service-events") }}'
-                     --enable-log-file-validation
-                     --region '{{ trail_region }}'
-                     --profile '{{ profile }}'
-    when: default_trail.IncludeGlobalServiceEvents != default_region or
-          default_trail.LogFileValidationEnabled   != True or
-          default_trail.S3BucketName               != '{{ awslogs_bucket }}'
+  - block:
+
+    - name: update Default trail in {{ trail_region }}
+      command: >
+        aws cloudtrail update-trail
+                       --name Default
+                       --s3-bucket-name '{{ awslogs_bucket }}'
+                       '{{ default_region
+                           | ternary("--include-global-service-events",
+                                     "--no-include-global-service-events") }}'
+                       --enable-log-file-validation
+                       --region '{{ trail_region }}'
+                       --profile '{{ profile }}'
+
+    - name: call optional notifier
+      include: 'roles/{{ notifier_role }}/tasks/main.yml'
+      vars:
+        message: >
+          updated the Default trail in
+          <a href="{{ cloudtrail_url }}?region={{ trail_region }}">{{
+            trail_region }} in account {{ profile }}</a>
+      when: notifier_role is defined
+
+    when: >
+      default_trail.IncludeGlobalServiceEvents != default_region or
+      default_trail.LogFileValidationEnabled   != True or
+      default_trail.S3BucketName               != '{{ awslogs_bucket }}'
 
   when: trails.stdout != 'null'
 
@@ -55,6 +68,15 @@
                      --region '{{ trail_region }}'
                      --profile '{{ profile }}'
 
+  - name: call optional notifier
+    include: 'roles/{{ notifier_role }}/tasks/main.yml'
+    vars:
+      message: >
+        created the Default trail in
+        <a href="{{ cloudtrail_url }}?region={{ trail_region }}">{{
+          trail_region }} in account {{ profile }}</a>
+    when: notifier_role is defined
+
   when: trails.stdout == 'null'
 
 
@@ -68,10 +90,23 @@
   register: is_logging
   changed_when: False
 
-- name: enable logging on Default trail in {{ trail_region }}
-  command: >
-    aws cloudtrail start-logging
-                   --name Default
-                   --region '{{ trail_region }}'
-                   --profile '{{ profile }}'
+
+- block:
+
+  - name: enable logging on Default trail in {{ trail_region }}
+    command: >
+      aws cloudtrail start-logging
+                     --name Default
+                     --region '{{ trail_region }}'
+                     --profile '{{ profile }}'
+
+  - name: call optional notifier
+    include: 'roles/{{ notifier_role }}/tasks/main.yml'
+    vars:
+      message: >
+        enabled logging on the Default trail in
+        <a href="{{ cloudtrail_url }}?region={{ trail_region }}">{{
+          trail_region }} in account {{ profile }}</a>
+    when: notifier_role is defined
+
   when: '{{ not is_logging.stdout | bool }}'
