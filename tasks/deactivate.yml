@@ -9,7 +9,7 @@
                    --region '{{ trail_region }}'
                    --query 'trailList[0]'
                    --profile '{{ aws_profile }}'
-  register: trails
+  register: _aws_cloudtrail_default_trail
   changed_when: False
 
 
@@ -27,8 +27,8 @@
     vars:
       message: >
         deleted the Default trail in
-        <a href="{{ cloudtrail_url }}?region={{ trail_region }}">{{
+        <a href="{{ _aws_cloudtrail_url }}?region={{ trail_region }}">{{
           trail_region }} in account {{ aws_profile }}</a>
     when: notifier_role is defined
 
-  when: trails.stdout != 'null'
+  when: _aws_cloudtrail_default_trail.stdout != 'null'
