@@ -15,12 +15,12 @@
 - name: set configured AWS regions fact
   set_fact:
     configured_regions: >
-      {% if cloudtrail_regions == 'ALL' -%}
+      {% if aws_cloudtrail_regions == 'ALL' -%}
       {{ all_regions }}
-      {% elif cloudtrail_regions == 'NONE' -%}
+      {% elif aws_cloudtrail_regions == 'NONE' -%}
       {{ [] }}
       {% else -%}
-      {{ cloudtrail_regions }}
+      {{ aws_cloudtrail_regions }}
       {% endif -%}
 
 - name: set added and removed AWS regions fact
