@@ -12,7 +12,7 @@
                         trail_region }}:{{ account }}:trail/Default'
                    --region '{{ trail_region }}'
                    --query 'trailList[0]'
-                   --profile '{{ profile }}'
+                   --profile '{{ aws_profile }}'
   register: trails
   changed_when: False
 
@@ -35,7 +35,7 @@
                                      "--no-include-global-service-events") }}'
                        --enable-log-file-validation
                        --region '{{ trail_region }}'
-                       --profile '{{ profile }}'
+                       --profile '{{ aws_profile }}'
 
     - name: call optional notifier
       include: 'roles/{{ notifier_role }}/tasks/main.yml'
@@ -43,7 +43,7 @@
         message: >
           updated the Default trail in
           <a href="{{ cloudtrail_url }}?region={{ trail_region }}">{{
-            trail_region }} in account {{ profile }}</a>
+            trail_region }} in account {{ aws_profile }}</a>
       when: notifier_role is defined
 
     when: >
@@ -66,7 +66,7 @@
                                    "--no-include-global-service-events") }}'
                      --enable-log-file-validation
                      --region '{{ trail_region }}'
-                     --profile '{{ profile }}'
+                     --profile '{{ aws_profile }}'
 
   - name: call optional notifier
     include: 'roles/{{ notifier_role }}/tasks/main.yml'
@@ -74,7 +74,7 @@
       message: >
         created the Default trail in
         <a href="{{ cloudtrail_url }}?region={{ trail_region }}">{{
-          trail_region }} in account {{ profile }}</a>
+          trail_region }} in account {{ aws_profile }}</a>
     when: notifier_role is defined
 
   when: trails.stdout == 'null'
@@ -86,7 +86,7 @@
                    --name Default
                    --region '{{ trail_region }}'
                    --query 'IsLogging'
-                   --profile '{{ profile }}'
+                   --profile '{{ aws_profile }}'
   register: is_logging
   changed_when: False
 
@@ -98,7 +98,7 @@
       aws cloudtrail start-logging
                      --name Default
                      --region '{{ trail_region }}'
-                     --profile '{{ profile }}'
+                     --profile '{{ aws_profile }}'
 
   - name: call optional notifier
     include: 'roles/{{ notifier_role }}/tasks/main.yml'
@@ -106,7 +106,7 @@
       message: >
         enabled logging on the Default trail in
         <a href="{{ cloudtrail_url }}?region={{ trail_region }}">{{
-          trail_region }} in account {{ profile }}</a>
+          trail_region }} in account {{ aws_profile }}</a>
     when: notifier_role is defined
 
   when: '{{ not is_logging.stdout | bool }}'

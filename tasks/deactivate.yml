@@ -8,7 +8,7 @@
                         trail_region }}:{{ account }}:trail/Default'
                    --region '{{ trail_region }}'
                    --query 'trailList[0]'
-                   --profile '{{ profile }}'
+                   --profile '{{ aws_profile }}'
   register: trails
   changed_when: False
 
@@ -20,7 +20,7 @@
       aws cloudtrail delete-trail
                      --name Default
                      --region {{ trail_region }}
-                     --profile {{ profile }}
+                     --profile {{ aws_profile }}
 
   - name: call optional notifier
     include: 'roles/{{ notifier_role }}/tasks/main.yml'
@@ -28,7 +28,7 @@
       message: >
         deleted the Default trail in
         <a href="{{ cloudtrail_url }}?region={{ trail_region }}">{{
-          trail_region }} in account {{ profile }}</a>
+          trail_region }} in account {{ aws_profile }}</a>
     when: notifier_role is defined
 
   when: trails.stdout != 'null'
