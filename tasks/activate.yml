@@ -2,7 +2,7 @@
 
 - name: set default region boolean fact
   set_fact:
-    default_region: '{{ (trail_region == region) | bool }}'
+    default_region: '{{ (trail_region == aws_region) | bool }}'
 
 - name: describe Default trail in {{ trail_region }}
   command: >
