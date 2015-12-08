@@ -15,20 +15,20 @@
 
 - block:
 
-  - name: disable CloudTrail by deleting Default trail
-    command: >
-      aws cloudtrail delete-trail
-                     --name Default
-                     --region {{ trail_region }}
-                     --profile {{ aws_profile }}
+    - name: disable CloudTrail by deleting Default trail
+      command: >
+        aws cloudtrail delete-trail
+                       --name Default
+                       --region {{ trail_region }}
+                       --profile {{ aws_profile }}
 
-  - name: call optional notifier
-    include: 'roles/{{ notifier_role }}/tasks/main.yml'
-    vars:
-      message: >
-        deleted the Default trail in
-        <a href="{{ _aws_cloudtrail_url }}?region={{ trail_region }}">{{
-          trail_region }} in account {{ aws_profile }}</a>
-    when: notifier_role is defined
+    - name: call optional notifier
+      include: 'roles/{{ notifier_role }}/tasks/main.yml'
+      vars:
+        message: >
+          deleted the Default trail in
+          <a href="{{ _aws_cloudtrail_url }}?region={{ trail_region }}">{{
+            trail_region }} in account {{ aws_profile }}</a>
+      when: notifier_role is defined
 
   when: _aws_cloudtrail_default_trail.stdout != 'null'
