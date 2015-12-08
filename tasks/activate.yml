@@ -29,7 +29,7 @@
       command: >
         aws cloudtrail update-trail
                        --name Default
-                       --s3-bucket-name '{{ awslogs_bucket }}'
+                       --s3-bucket-name '{{ aws_awslogs_bucket }}'
                        '{{ default_region
                            | ternary("--include-global-service-events",
                                      "--no-include-global-service-events") }}'
@@ -49,7 +49,7 @@
     when: >
       default_trail.IncludeGlobalServiceEvents != default_region or
       default_trail.LogFileValidationEnabled   != True or
-      default_trail.S3BucketName               != '{{ awslogs_bucket }}'
+      default_trail.S3BucketName               != '{{ aws_awslogs_bucket }}'
 
   when: trails.stdout != 'null'
 
@@ -60,7 +60,7 @@
     command: >
       aws cloudtrail create-trail
                      --name Default
-                     --s3-bucket-name '{{ awslogs_bucket }}'
+                     --s3-bucket-name '{{ aws_awslogs_bucket }}'
                      '{{ default_region
                          | ternary("--include-global-service-events",
                                    "--no-include-global-service-events") }}'
