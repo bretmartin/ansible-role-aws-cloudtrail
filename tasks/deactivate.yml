@@ -5,7 +5,7 @@
     aws cloudtrail describe-trails
                    --trail-name-list
                      'arn:aws:cloudtrail:{{
-                        trail_region }}:{{ account }}:trail/Default'
+                        trail_region }}:{{ aws_account }}:trail/Default'
                    --region '{{ trail_region }}'
                    --query 'trailList[0]'
                    --profile '{{ aws_profile }}'
