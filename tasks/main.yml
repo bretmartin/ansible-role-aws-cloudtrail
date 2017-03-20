@@ -17,12 +17,12 @@
 - include: activate.yml
   vars:
     trail_region: '{{ item }}'
-  with_items: _aws_cloudtrail_active_regions
+  with_items: '{{ _aws_cloudtrail_active_regions }}'
 
 - include: deactivate.yml
   vars:
     trail_region: '{{ item }}'
-  with_items: _aws_cloudtrail_inactive_regions
+  with_items: '{{ _aws_cloudtrail_inactive_regions }}'
 
 - name: call optional notifier
   include: 'roles/{{ notifier_role }}/tasks/main.yml'
