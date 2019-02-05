@@ -39,7 +39,8 @@
                            --profile '{{ aws_profile }}'
 
         - name: call optional notifier
-          include_tasks: 'roles/{{ notifier_role }}/tasks/main.yml'
+          include_role:
+            name: '{{ notifier_role }}'
           vars:
             message: >
               updated the Default trail in
@@ -73,7 +74,8 @@
                        --profile '{{ aws_profile }}'
 
     - name: call optional notifier
-      include_tasks: 'roles/{{ notifier_role }}/tasks/main.yml'
+      include_role:
+        name: '{{ notifier_role }}'
       vars:
         message: >
           created the Default trail in
@@ -105,7 +107,8 @@
                        --profile '{{ aws_profile }}'
 
     - name: call optional notifier
-      include_tasks: 'roles/{{ notifier_role }}/tasks/main.yml'
+      include_role:
+        name: '{{ notifier_role }}'
       vars:
         message: >
           enabled logging on the Default trail in

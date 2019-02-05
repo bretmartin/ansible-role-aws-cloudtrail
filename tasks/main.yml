@@ -5,7 +5,8 @@
     _aws_cloudtrail_url: https://console.aws.amazon.com/cloudtrail/home
 
 - name: call optional notifier
-  include_tasks: 'roles/{{ notifier_role }}/tasks/main.yml'
+  include_role:
+    name: '{{ notifier_role }}'
   vars:
     message: >
       started running role <b>aws-cloudtrail</b>
@@ -25,7 +26,8 @@
   with_items: '{{ _aws_cloudtrail_inactive_regions }}'
 
 - name: call optional notifier
-  include_tasks: 'roles/{{ notifier_role }}/tasks/main.yml'
+  include_role:
+    name: '{{ notifier_role }}'
   vars:
     message: >
       finished running role <b>aws-cloudtrail</b>
