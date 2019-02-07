@@ -1,119 +1,24 @@
 ---
 
-- name: set default region boolean fact
-  set_fact:
-    _aws_cloudtrail_default_region: '{{ (trail_region == aws_region) | bool }}'
+- name: configure CloudTrail in {{ trail_region }}
+  cloudtrail:
+    enable_log_file_validation: false
+    include_global_events: '{{ (trail_region == aws_region) | bool }}'
+    name: Default
+    profile: '{{ aws_profile }}'
+    region: '{{ trail_region }}'
+    s3_bucket_name: '{{ aws_awslogs_bucket }}'
+    state: enabled
+  register: _aws_cloudtrail
 
-- name: describe Default trail in {{ trail_region }}
-  command: >
-    aws cloudtrail describe-trails
-                   --trail-name-list
-                     'arn:aws:cloudtrail:{{
-                        trail_region }}:{{ aws_account }}:trail/Default'
-                   --region '{{ trail_region }}'
-                   --query 'trailList[0]'
-                   --profile '{{ aws_profile }}'
-  register: _aws_cloudtrail_default_trail_command
-  changed_when: False
-
-
-- block:
-
-    - name: set Default trail fact for {{ trail_region }}
-      set_fact:
-        _aws_cloudtrail_default_trail: >
-          {{ _aws_cloudtrail_default_trail_command.stdout | from_json }}
-
-    - block:
-
-        - name: update Default trail in {{ trail_region }}
-          command: >
-            aws cloudtrail update-trail
-                           --name Default
-                           --s3-bucket-name '{{ aws_awslogs_bucket }}'
-                           '{{ _aws_cloudtrail_default_region
-                               | ternary("--include-global-service-events",
-                                         "--no-include-global-service-events") }}'
-                           --enable-log-file-validation
-                           --region '{{ trail_region }}'
-                           --profile '{{ aws_profile }}'
-
-        - name: call optional notifier
-          include_role:
-            name: '{{ notifier_role }}'
-          vars:
-            message: >
-              updated the Default trail in
-              <a href="{{ _aws_cloudtrail_url }}?region={{ trail_region }}">{{
-                trail_region }} in account {{ aws_profile }}</a>
-          when: notifier_role is defined
-
-      when: >
-        _aws_cloudtrail_default_trail.IncludeGlobalServiceEvents
-          != _aws_cloudtrail_default_region or
-        _aws_cloudtrail_default_trail.LogFileValidationEnabled
-          != True or
-        _aws_cloudtrail_default_trail.S3BucketName
-          != '{{ aws_awslogs_bucket }}'
-
-  when: _aws_cloudtrail_default_trail_command.stdout != 'null'
-
-
-- block:
-
-    - name: create Default trail in {{ trail_region }}
-      command: >
-        aws cloudtrail create-trail
-                       --name Default
-                       --s3-bucket-name '{{ aws_awslogs_bucket }}'
-                       '{{ _aws_cloudtrail_default_region
-                           | ternary("--include-global-service-events",
-                                     "--no-include-global-service-events") }}'
-                       --enable-log-file-validation
-                       --region '{{ trail_region }}'
-                       --profile '{{ aws_profile }}'
-
-    - name: call optional notifier
-      include_role:
-        name: '{{ notifier_role }}'
-      vars:
-        message: >
-          created the Default trail in
-          <a href="{{ _aws_cloudtrail_url }}?region={{ trail_region }}">{{
-            trail_region }} in account {{ aws_profile }}</a>
-      when: notifier_role is defined
-
-  when: _aws_cloudtrail_default_trail_command.stdout == 'null'
-
-
-- name: get Default trail status in {{ trail_region }}
-  command: >
-    aws cloudtrail get-trail-status
-                   --name Default
-                   --region '{{ trail_region }}'
-                   --query 'IsLogging'
-                   --profile '{{ aws_profile }}'
-  register: _aws_cloudtrail_default_trail_is_logging
-  changed_when: False
-
-
-- block:
-
-    - name: enable logging on Default trail in {{ trail_region }}
-      command: >
-        aws cloudtrail start-logging
-                       --name Default
-                       --region '{{ trail_region }}'
-                       --profile '{{ aws_profile }}'
-
-    - name: call optional notifier
-      include_role:
-        name: '{{ notifier_role }}'
-      vars:
-        message: >
-          enabled logging on the Default trail in
-          <a href="{{ _aws_cloudtrail_url }}?region={{ trail_region }}">{{
-            trail_region }} in account {{ aws_profile }}</a>
-      when: notifier_role is defined
-
-  when: '{{ not _aws_cloudtrail_default_trail_is_logging.stdout | bool }}'
+- name: call optional notifier
+  include_role:
+    name: '{{ notifier_role }}'
+  vars:
+    message: >
+      configured CloudTrail in
+      <a href="{{ _aws_cloudtrail_url }}?region={{ trail_region }}">{{
+        trail_region }} in account {{ aws_profile }}</a>
+  when: >
+    notifier_role is defined and
+    _aws_cloudtrail is changed
