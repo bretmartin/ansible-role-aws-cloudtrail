@@ -1,12 +1,14 @@
 ---
-- name: setup cloudwatch event rule for {{ item.name }}
+- name: setup cloudwatch event rule for {{ event_rule.name }}
   cloudwatchevent_rule:
-    name: "{{ item.name }}"
-    event_pattern: "{{ item.event_pattern }}"
-    description: "{{ item.description }}"
+    name: "{{ event_rule.name }}"
+    event_pattern: "{{ event_rule.event_pattern }}"
+    description: "{{ event_rule.description }}"
     profile: "{{ aws_profile }}"
     region: "{{ trail_region }}"
     targets:
-    - id: "{{ item.target_id }}"
-      arn: arn:aws:{{ item.target_type }}:{{ trail_region }}:{{ aws_account }}:{{ item.target_id }}
+    - id: "{{ event_rule.target_id }}"
+      arn: arn:aws:{{ event_rule.target_type }}:{{ trail_region }}:{{ aws_account }}:{{ event_rule.target_id }}
   with_items: "{{ cloudwatch_event_rules }}"
+  loop_control:
+    loop_var: event_rule
