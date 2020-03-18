@@ -26,7 +26,9 @@
   with_items: '{{ _aws_cloudtrail_inactive_regions }}'
 
 - include_tasks: cloudwatch_defaults.yml
-  with_items: '{{ _aws_cloudtrail_active_regions }}'
+  vars:
+    trail_region: "{{ item }}"
+  with_items: "{{ _aws_cloudtrail_active_regions }}"
 
 - name: call optional notifier
   include_role:

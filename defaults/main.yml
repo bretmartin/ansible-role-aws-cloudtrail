@@ -1,3 +1,21 @@
 ---
-
 aws_cloudtrail_regions: ['{{ aws_region }}']
+
+cloudwatch_event_rules:
+- name: RootLogin
+  description: 'Alert on any root logins to AWS account'
+  target_id: h3help
+  target_type: sns
+  event_pattern: |-
+    {
+      "detail-type": [
+        "AWS Console Sign In via CloudTrail"
+      ],
+      "detail": {
+        "userIdentity": {
+          "arn": [
+            "Root"
+          ]
+        }
+      }
+    }

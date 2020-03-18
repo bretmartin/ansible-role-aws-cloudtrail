@@ -1,23 +1,12 @@
 ---
-- name: setup cloudwatch event rule for root logins
+- name: setup cloudwatch event rule for {{ item.name }}
   cloudwatchevent_rule:
-    name: RootLogin
-    event_pattern: |-
-      {
-        "detail-type": [
-          "AWS Console Sign In via CloudTrail"
-        ],
-        "detail": {
-          "userIdentity": {
-            "arn": [
-              "Root"
-            ]
-          }
-        }
-      }
-    description: Alert on any root logins to AWS account
+    name: "{{ item.name }}"
+    event_pattern: "{{ item.event_pattern }}"
+    description: "{{ item.description }}"
     profile: "{{ aws_profile }}"
     region: "{{ trail_region }}"
     targets:
-    - id: H3Help
-      arn: arn:aws:sns:{{ trail_region }}:{{ aws_account }}:H3Help
+    - id: "{{ item.target_id }}"
+      arn: arn:aws:{{ item.target_type }}:{{ trail_region }}:{{ aws_account }}:{{ item.target_id }}
+  with_items: "{{ cloudwatch_event_rules }}"
